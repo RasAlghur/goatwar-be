@@ -1,6 +1,14 @@
 /**
  * cranker.ts — GOAT WARS automated cranker
  *
+ * Deployer key loading priority:
+ *   1. PATH_2 env var (JSON array string "[1,2,3,...]" or base58)
+ *   2. PATH_1 env var (local file path fallback)
+ *
+ * Set PATH_2 on Railway (or any host).
+ * Keep PATH_1 for local dev.
+ *
+ * Set CRANKER_ENABLED=false to disable the cranker without undeploying.
  */
 
 import * as anchor from "@coral-xyz/anchor";
@@ -18,7 +26,7 @@ import * as fs from "fs";
 import * as crypto from "crypto";
 import * as path from "path";
 
-
+// ── Deployer key loader ───────────────────────────────────────────────────────
 function loadPath(): Keypair {
   const envKey = process.env.PATH_2;
 
@@ -30,7 +38,6 @@ function loadPath(): Keypair {
         throw new Error(`PATH_2 looks like a JSON array but failed to parse: ${String(e)}`);
       }
     }
-    // Base58 string
     try {
       return Keypair.fromSecretKey(bs58.decode(envKey));
     } catch (e) {
@@ -38,7 +45,6 @@ function loadPath(): Keypair {
     }
   }
 
-  // File path fallback for local dev
   const keyPath = process.env.PATH_1;
   if (keyPath) {
     try {
@@ -62,15 +68,17 @@ function requireEnv(name: string): string {
   return val;
 }
 
-const RPC = process.env.RPC ?? "https://api.devnet.solana.com";
-const PROGRAM_ID = new PublicKey(requireEnv("PROGRAM_ID"));
-const MESSI_MINT = new PublicKey(requireEnv("MESSI_MINT"));
-const RONALDO_MINT = new PublicKey(requireEnv("RONALDO_MINT"));
-const TREASURY = new PublicKey(requireEnv("TREASURY_ADDRESS"));
-const POLL_INTERVAL_MS = Number(process.env.POLL_INTERVAL_MS ?? 60_000);
-const ROUND_DURATION_SECS = Number(process.env.ROUND_DURATION_SECS ?? 3600);
-const BREAK_DURATION_SECS = Number(process.env.BREAK_DURATION_SECS ?? 600);
-const STATE_FILE_PATH = path.resolve(process.env.STATE_FILE_PATH ?? "./cranker-state.json");
+// ── Config ────────────────────────────────────────────────────────────────────
+const CRANKER_ENABLED      = (process.env.CRANKER_ENABLED ?? "true").toLowerCase() !== "false";
+const RPC                  = process.env.RPC ?? "https://api.devnet.solana.com";
+const PROGRAM_ID           = new PublicKey(requireEnv("PROGRAM_ID"));
+const MESSI_MINT           = new PublicKey(requireEnv("MESSI_MINT"));
+const RONALDO_MINT         = new PublicKey(requireEnv("RONALDO_MINT"));
+const TREASURY             = new PublicKey(requireEnv("TREASURY_ADDRESS"));
+const POLL_INTERVAL_MS     = Number(process.env.POLL_INTERVAL_MS ?? 60_000);
+const ROUND_DURATION_SECS  = Number(process.env.ROUND_DURATION_SECS ?? 3600);
+const BREAK_DURATION_SECS  = Number(process.env.BREAK_DURATION_SECS ?? 600);
+const STATE_FILE_PATH      = path.resolve(process.env.STATE_FILE_PATH ?? "./cranker-state.json");
 const DEPLOYMENT_START_ROUND = Number(process.env.DEPLOYMENT_START_ROUND ?? 1);
 
 const PATH_OWNER: Keypair = loadPath();
@@ -105,18 +113,18 @@ function saveState(state: CrankerState): void {
 
 // ── Anchor setup ──────────────────────────────────────────────────────────────
 const connection = new Connection(RPC, "confirmed");
-const wallet = new anchor.Wallet(PATH_OWNER);
-const provider = new anchor.AnchorProvider(connection, wallet, { commitment: "confirmed", preflightCommitment: "confirmed" });
+const wallet     = new anchor.Wallet(PATH_OWNER);
+const provider   = new anchor.AnchorProvider(connection, wallet, { commitment: "confirmed", preflightCommitment: "confirmed" });
 anchor.setProvider(provider);
 
 const IDL_PATH = path.resolve(__dirname, "idl.json");
-const idl = JSON.parse(fs.readFileSync(IDL_PATH, "utf8"));
-idl.address = PROGRAM_ID.toBase58();
-const program = new anchor.Program(idl, provider);
+const idl      = JSON.parse(fs.readFileSync(IDL_PATH, "utf8"));
+idl.address    = PROGRAM_ID.toBase58();
+const program  = new anchor.Program(idl, provider);
 
 const accountClient = program.account as unknown as {
   round: { fetch: (pda: PublicKey) => Promise<RoundAccount> };
-  bid: { fetch: (pda: PublicKey) => Promise<BidAccount> };
+  bid:   { fetch: (pda: PublicKey) => Promise<BidAccount> };
 };
 
 type RA = { pubkey: PublicKey; isWritable: boolean; isSigner: boolean };
@@ -150,6 +158,7 @@ interface RoundAccount {
   proportionalRewardAmount: BN; proportionalRewardFilled: boolean;
   operator: PublicKey; bump: number;
 }
+
 interface BidAccount {
   bidder: PublicKey; mint: PublicKey; amount: BN;
   claimedReturn: boolean; claimedPrize: boolean;
@@ -159,7 +168,7 @@ interface BidAccount {
 function sleep(ms: number) { return new Promise((res) => setTimeout(res, ms)); }
 
 function is429(err: unknown) {
-  const e = err as Record<string, unknown>;
+  const e   = err as Record<string, unknown>;
   const msg = typeof e?.message === "string" ? e.message : String(err);
   return msg.includes("429") || msg.includes("Too Many Requests") || e?.status === 429;
 }
@@ -190,7 +199,7 @@ function getBidPDA(n: number, bidder: PublicKey, mint: PublicKey): PublicKey {
 }
 
 async function fetchRound(n: number): Promise<{ account: RoundAccount; pda: PublicKey } | null> {
-  const pda = getRoundPDA(n);
+  const pda  = getRoundPDA(n);
   const info = await withBackoff(() => connection.getAccountInfo(pda, "confirmed"));
   if (!info) return null;
   const account = await withBackoff(() => accountClient.round.fetch(pda));
@@ -258,7 +267,7 @@ function pickWeightedRandom(bids: { bidder: PublicKey; amount: BN }[]): PublicKe
   return bids[bids.length - 1].bidder;
 }
 
-function log(...args: unknown[]) { console.log(`[${new Date().toISOString()}]`, ...args); }
+function log(...args: unknown[])   { console.log(`[${new Date().toISOString()}]`, ...args); }
 function error(...args: unknown[]) { console.error(`[${new Date().toISOString()}] ERROR`, ...args); }
 function formatDuration(s: number) { return `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m ${s % 60}s`; }
 
@@ -266,7 +275,7 @@ function formatDuration(s: number) { return `${Math.floor(s / 3600)}h ${Math.flo
 const SETTLE_CLOCK_BUFFER_SECS = 2;
 
 async function settleRound(roundNumber: number, account: RoundAccount, pda: PublicKey): Promise<boolean> {
-  const now = Math.floor(Date.now() / 1000);
+  const now   = Math.floor(Date.now() / 1000);
   const endTs = Number(account.endTs);
   if (now < endTs + SETTLE_CLOCK_BUFFER_SECS) {
     const wait = endTs + SETTLE_CLOCK_BUFFER_SECS - now;
@@ -276,7 +285,7 @@ async function settleRound(roundNumber: number, account: RoundAccount, pda: Publ
 
   log(`Settling round ${roundNumber}...`);
 
-  const aWins = BigInt(account.totalA.toString()) >= BigInt(account.totalB.toString());
+  const aWins      = BigInt(account.totalA.toString()) >= BigInt(account.totalB.toString());
   const losingMint = aWins ? account.mintB : account.mintA;
   const treasuryAta = await ensureAta(losingMint, TREASURY);
   log(`  Treasury ATA: ${treasuryAta.toBase58()}`);
@@ -287,11 +296,11 @@ async function settleRound(roundNumber: number, account: RoundAccount, pda: Publ
 
   try {
     await (methodsClient.settleRound().accounts({
-      round: pda,
-      escrowA: account.escrowA,
-      escrowB: account.escrowB,
-      mintA: account.mintA,
-      mintB: account.mintB,
+      round:       pda,
+      escrowA:     account.escrowA,
+      escrowB:     account.escrowB,
+      mintA:       account.mintA,
+      mintB:       account.mintB,
       tokenProgram: TOKEN_2022_PROGRAM_ID,
     }) as unknown as { remainingAccounts: (accs: RA[]) => { rpc: () => Promise<string> } })
       .remainingAccounts(remainingAccounts).rpc();
@@ -310,7 +319,7 @@ async function fulfillRandomWinner(roundNumber: number, account: RoundAccount, p
   }
 
   const winningMint = account.winnerTeam === 1 ? account.mintA : account.mintB;
-  const SYS = "11111111111111111111111111111111";
+  const SYS         = "11111111111111111111111111111111";
 
   // Exclude system/default keys AND both highest bidders (program enforces this constraint)
   const excludedAddresses = new Set([
@@ -320,7 +329,7 @@ async function fulfillRandomWinner(roundNumber: number, account: RoundAccount, p
     account.highestBidB.toBase58(),
   ]);
 
-  const allBids = await fetchWinningTeamBids(roundNumber, winningMint);
+  const allBids      = await fetchWinningTeamBids(roundNumber, winningMint);
   const eligibleBids = allBids.filter((b) => !excludedAddresses.has(b.bidder.toBase58()));
 
   log(`Eligible for random: ${eligibleBids.length} (excluded ${allBids.length - eligibleBids.length} highest/default bidders)`);
@@ -348,34 +357,34 @@ async function fulfillRandomWinner(roundNumber: number, account: RoundAccount, p
 
 async function initializeRound(roundNumber: number): Promise<boolean> {
   log(`Initializing round ${roundNumber} (cooldown: ${BREAK_DURATION_SECS}s)...`);
-  const now = Math.floor(Date.now() / 1000);
+  const now     = Math.floor(Date.now() / 1000);
   const startTs = now + BREAK_DURATION_SECS;
-  const endTs = startTs + ROUND_DURATION_SECS;
+  const endTs   = startTs + ROUND_DURATION_SECS;
   const roundPda = getRoundPDA(roundNumber);
 
-  const escrowA = await getAssociatedTokenAddress(MESSI_MINT, roundPda, true, TOKEN_2022_PROGRAM_ID);
+  const escrowA = await getAssociatedTokenAddress(MESSI_MINT,   roundPda, true, TOKEN_2022_PROGRAM_ID);
   const escrowB = await getAssociatedTokenAddress(RONALDO_MINT, roundPda, true, TOKEN_2022_PROGRAM_ID);
 
   try {
     await methodsClient.initializeRound(new BN(roundNumber), new BN(startTs), new BN(endTs))
       .accounts({
-        round: roundPda,
-        mintA: MESSI_MINT,
-        mintB: RONALDO_MINT,
+        round:                  roundPda,
+        mintA:                  MESSI_MINT,
+        mintB:                  RONALDO_MINT,
         escrowA,
         escrowB,
-        operator: PATH_OWNER.publicKey,
-        payer: PATH_OWNER.publicKey,
-        systemProgram: SystemProgram.programId,
-        tokenProgram: TOKEN_2022_PROGRAM_ID,
+        operator:               PATH_OWNER.publicKey,
+        payer:                  PATH_OWNER.publicKey,
+        systemProgram:          SystemProgram.programId,
+        tokenProgram:           TOKEN_2022_PROGRAM_ID,
         associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+        rent:                   anchor.web3.SYSVAR_RENT_PUBKEY,
       }).rpc();
     await sleep(1200);
     log(`Round ${roundNumber} initialized | opens: ${new Date(startTs * 1000).toISOString()} | ends: ${new Date(endTs * 1000).toISOString()}`);
     return true;
   } catch (err: unknown) {
-    const logs = (err as Record<string, unknown>)?.transactionLogs;
+    const logs   = (err as Record<string, unknown>)?.transactionLogs;
     const joined = Array.isArray(logs) ? logs.join("\n") : String(logs ?? "");
     if (joined.includes("already in use")) {
       log("initializeRound: already in use — treating as success.");
@@ -388,7 +397,7 @@ async function initializeRound(roundNumber: number): Promise<boolean> {
 }
 
 // ── Tick ──────────────────────────────────────────────────────────────────────
-let state = loadState();
+let state        = loadState();
 let isProcessing = false;
 
 async function tick(): Promise<void> {
@@ -406,7 +415,7 @@ async function tick(): Promise<void> {
     }
 
     const { account, pda } = fetched;
-    const now = Math.floor(Date.now() / 1000);
+    const now   = Math.floor(Date.now() / 1000);
     const endTs = Number(account.endTs);
 
     log(`Round ${currentRoundNumber} | settled: ${account.settled} | randomFilled: ${account.randomRewardFilled} | ends: ${new Date(endTs * 1000).toISOString()}`);
@@ -440,7 +449,7 @@ async function tick(): Promise<void> {
     const ok = await initializeRound(nextRound);
     if (ok) {
       state.currentRoundNumber = nextRound;
-      state.lastKnownStatus = { settled: false, randomRewardFilled: false };
+      state.lastKnownStatus    = { settled: false, randomRewardFilled: false };
       saveState(state);
       log(`Advanced to round ${nextRound}.`);
     }
@@ -453,10 +462,10 @@ async function tick(): Promise<void> {
 async function discoverLatestRound(): Promise<number> {
   log("Scanning on-chain for latest round...");
   let latest = DEPLOYMENT_START_ROUND - 1;
-  let batch = DEPLOYMENT_START_ROUND;
+  let batch  = DEPLOYMENT_START_ROUND;
   const BATCH = 20;
   while (true) {
-    const pdas = Array.from({ length: BATCH }, (_, i) => getRoundPDA(batch + i));
+    const pdas  = Array.from({ length: BATCH }, (_, i) => getRoundPDA(batch + i));
     const infos = await withBackoff(() => connection.getMultipleAccountsInfo(pdas, "confirmed"));
     let anyFound = false;
     for (let i = 0; i < infos.length; i++) {
@@ -481,7 +490,17 @@ async function main() {
   log(`  State    : ${STATE_FILE_PATH}`);
   log(`  Start    : round ${DEPLOYMENT_START_ROUND} (deployment floor)`);
   log(`  Token    : Token-2022 (${TOKEN_2022_PROGRAM_ID.toBase58()})`);
+  log(`  Enabled  : ${CRANKER_ENABLED}`);
   log("===========================================");
+
+  // ── Kill switch ───────────────────────────────────────────────────────────
+  if (!CRANKER_ENABLED) {
+    log("CRANKER_ENABLED=false — cranker is disabled. Sleeping indefinitely.");
+    log("Set CRANKER_ENABLED=true and restart to resume.");
+    // Sleep forever so Railway doesn't restart-loop the container
+    await new Promise(() => {});
+    return;
+  }
 
   try {
     const bal = await withBackoff(() => connection.getBalance(PATH_OWNER.publicKey));
@@ -491,7 +510,7 @@ async function main() {
 
   try {
     const onChainLatest = await discoverLatestRound();
-    const floor = DEPLOYMENT_START_ROUND;
+    const floor         = DEPLOYMENT_START_ROUND;
     if (onChainLatest < floor) {
       log(`No rounds >= ${floor} found on-chain. Will initialize round ${floor}.`);
       state.currentRoundNumber = floor;
