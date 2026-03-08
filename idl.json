@@ -1,0 +1,1060 @@
+{
+  "address": "HGUohqJ9kykNHLvegZ9vphvRMSztP1d1Xaz3khLxxqCb",
+  "metadata": {
+    "name": "messi_ronaldo_game",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "claim_highest_bidder",
+      "discriminator": [
+        4,
+        2,
+        161,
+        224,
+        152,
+        187,
+        190,
+        213
+      ],
+      "accounts": [
+        {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "round.round_number",
+                "account": "Round"
+              }
+            ]
+          }
+        },
+        {
+          "name": "escrow_a",
+          "writable": true
+        },
+        {
+          "name": "escrow_b",
+          "writable": true
+        },
+        {
+          "name": "bidder",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "bidder_ata",
+          "writable": true
+        },
+        {
+          "name": "mint_a"
+        },
+        {
+          "name": "mint_b"
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claim_proportional",
+      "discriminator": [
+        144,
+        16,
+        205,
+        44,
+        145,
+        64,
+        230,
+        152
+      ],
+      "accounts": [
+        {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "round.round_number",
+                "account": "Round"
+              }
+            ]
+          }
+        },
+        {
+          "name": "escrow_a",
+          "writable": true
+        },
+        {
+          "name": "escrow_b",
+          "writable": true
+        },
+        {
+          "name": "bidder",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "bidder_ata",
+          "writable": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "bid",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  105,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "round.round_number",
+                "account": "Round"
+              },
+              {
+                "kind": "account",
+                "path": "bidder"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint_a"
+        },
+        {
+          "name": "mint_b"
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claim_random_winner",
+      "discriminator": [
+        181,
+        101,
+        30,
+        95,
+        232,
+        184,
+        53,
+        255
+      ],
+      "accounts": [
+        {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "round.round_number",
+                "account": "Round"
+              }
+            ]
+          }
+        },
+        {
+          "name": "escrow_a",
+          "writable": true
+        },
+        {
+          "name": "escrow_b",
+          "writable": true
+        },
+        {
+          "name": "bidder",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "bidder_ata",
+          "writable": true
+        },
+        {
+          "name": "mint_a"
+        },
+        {
+          "name": "mint_b"
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claim_return",
+      "discriminator": [
+        108,
+        64,
+        130,
+        104,
+        99,
+        226,
+        63,
+        143
+      ],
+      "accounts": [
+        {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "round.round_number",
+                "account": "Round"
+              }
+            ]
+          }
+        },
+        {
+          "name": "escrow",
+          "writable": true
+        },
+        {
+          "name": "bidder",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "bidder_ata",
+          "writable": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "bid",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  105,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "round.round_number",
+                "account": "Round"
+              },
+              {
+                "kind": "account",
+                "path": "bidder"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "deposit_bid",
+      "discriminator": [
+        248,
+        211,
+        140,
+        193,
+        74,
+        255,
+        255,
+        235
+      ],
+      "accounts": [
+        {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "round.round_number",
+                "account": "Round"
+              }
+            ]
+          }
+        },
+        {
+          "name": "bidder",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "bidder_ata",
+          "writable": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "escrow",
+          "writable": true
+        },
+        {
+          "name": "bid",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  105,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "round.round_number",
+                "account": "Round"
+              },
+              {
+                "kind": "account",
+                "path": "bidder"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "fulfill_random_winner",
+      "discriminator": [
+        249,
+        236,
+        76,
+        163,
+        238,
+        49,
+        35,
+        13
+      ],
+      "accounts": [
+        {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "round.round_number",
+                "account": "Round"
+              }
+            ]
+          }
+        },
+        {
+          "name": "operator",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "chosen_winner",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "initialize_round",
+      "discriminator": [
+        43,
+        135,
+        19,
+        93,
+        14,
+        225,
+        131,
+        188
+      ],
+      "accounts": [
+        {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "round_number"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint_a"
+        },
+        {
+          "name": "mint_b"
+        },
+        {
+          "name": "escrow_a",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "round"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint_a"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "escrow_b",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "round"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint_b"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "operator",
+          "signer": true
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "round_number",
+          "type": "u64"
+        },
+        {
+          "name": "start_ts",
+          "type": "i64"
+        },
+        {
+          "name": "end_ts",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "settle_round",
+      "discriminator": [
+        40,
+        101,
+        18,
+        1,
+        31,
+        129,
+        52,
+        77
+      ],
+      "accounts": [
+        {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "round.round_number",
+                "account": "Round"
+              }
+            ]
+          }
+        },
+        {
+          "name": "escrow_a",
+          "writable": true
+        },
+        {
+          "name": "escrow_b",
+          "writable": true
+        },
+        {
+          "name": "mint_a",
+          "writable": true
+        },
+        {
+          "name": "mint_b",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Bid",
+      "discriminator": [
+        143,
+        246,
+        48,
+        245,
+        42,
+        145,
+        180,
+        88
+      ]
+    },
+    {
+      "name": "Round",
+      "discriminator": [
+        87,
+        127,
+        165,
+        51,
+        73,
+        78,
+        116,
+        174
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidTimestamps",
+      "msg": "Invalid timestamps"
+    },
+    {
+      "code": 6001,
+      "name": "RoundNotActive",
+      "msg": "Round is not active"
+    },
+    {
+      "code": 6002,
+      "name": "AmountMustBePositive",
+      "msg": "Amount must be positive"
+    },
+    {
+      "code": 6003,
+      "name": "Overflow",
+      "msg": "Overflow"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidMint",
+      "msg": "Invalid mint for this round"
+    },
+    {
+      "code": 6005,
+      "name": "RoundNotOver",
+      "msg": "Round is not over yet"
+    },
+    {
+      "code": 6006,
+      "name": "RoundAlreadySettled",
+      "msg": "Round already settled"
+    },
+    {
+      "code": 6007,
+      "name": "NoBids",
+      "msg": "No bids for this round"
+    },
+    {
+      "code": 6008,
+      "name": "MissingTreasuryAccount",
+      "msg": "Missing treasury ATA in remaining accounts"
+    },
+    {
+      "code": 6009,
+      "name": "UnauthorizedOperator",
+      "msg": "Unauthorized operator"
+    },
+    {
+      "code": 6010,
+      "name": "RandomAlreadyFilled",
+      "msg": "Random winner already filled"
+    },
+    {
+      "code": 6011,
+      "name": "RandomNotFilled",
+      "msg": "Random winner not yet selected"
+    },
+    {
+      "code": 6012,
+      "name": "NoPendingRandom",
+      "msg": "No pending random reward"
+    },
+    {
+      "code": 6013,
+      "name": "RoundNotSettled",
+      "msg": "Round not settled yet"
+    },
+    {
+      "code": 6014,
+      "name": "InvalidBidOwner",
+      "msg": "Bid owner mismatch"
+    },
+    {
+      "code": 6015,
+      "name": "AlreadyClaimedReturn",
+      "msg": "Bidder already claimed return"
+    },
+    {
+      "code": 6016,
+      "name": "AlreadyClaimedPrize",
+      "msg": "Bidder already claimed proportional prize"
+    },
+    {
+      "code": 6017,
+      "name": "AlreadyClaimedHighest",
+      "msg": "Highest bidder reward already claimed"
+    },
+    {
+      "code": 6018,
+      "name": "AlreadyClaimedRandom",
+      "msg": "Random winner reward already claimed"
+    },
+    {
+      "code": 6019,
+      "name": "NoBidAmount",
+      "msg": "No bid amount"
+    },
+    {
+      "code": 6020,
+      "name": "NotWinningMint",
+      "msg": "Not the winning mint for this round"
+    },
+    {
+      "code": 6021,
+      "name": "NoWinner",
+      "msg": "No winner determined"
+    },
+    {
+      "code": 6022,
+      "name": "ClaimTooEarly",
+      "msg": "Claims are not yet open"
+    },
+    {
+      "code": 6023,
+      "name": "NoPropReward",
+      "msg": "No proportional reward for this round"
+    },
+    {
+      "code": 6024,
+      "name": "NotEligibleForProp",
+      "msg": "Not eligible for proportional reward"
+    },
+    {
+      "code": 6025,
+      "name": "NoHighestBidderReward",
+      "msg": "No highest bidder reward for this round"
+    },
+    {
+      "code": 6026,
+      "name": "NotHighestBidder",
+      "msg": "Caller is not the highest bidder"
+    },
+    {
+      "code": 6027,
+      "name": "NotRandomWinner",
+      "msg": "Caller is not the random winner"
+    },
+    {
+      "code": 6028,
+      "name": "RandomWinnerIsHighestBidder",
+      "msg": "Random winner cannot be the highest bidder"
+    },
+    {
+      "code": 6029,
+      "name": "HighestBidderIsRandomWinner",
+      "msg": "Highest bidder cannot also be the random winner"
+    }
+  ],
+  "types": [
+    {
+      "name": "Bid",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bidder",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u128"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "claimed_return",
+            "type": "bool"
+          },
+          {
+            "name": "claimed_prize",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Round",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "round_number",
+            "type": "u64"
+          },
+          {
+            "name": "start_ts",
+            "type": "i64"
+          },
+          {
+            "name": "end_ts",
+            "type": "i64"
+          },
+          {
+            "name": "settled_at",
+            "type": "i64"
+          },
+          {
+            "name": "mint_a",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint_b",
+            "type": "pubkey"
+          },
+          {
+            "name": "escrow_a",
+            "type": "pubkey"
+          },
+          {
+            "name": "escrow_b",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_a",
+            "type": "u128"
+          },
+          {
+            "name": "total_b",
+            "type": "u128"
+          },
+          {
+            "name": "highest_bid_a",
+            "type": "pubkey"
+          },
+          {
+            "name": "highest_bid_a_amount",
+            "type": "u128"
+          },
+          {
+            "name": "highest_bid_b",
+            "type": "pubkey"
+          },
+          {
+            "name": "highest_bid_b_amount",
+            "type": "u128"
+          },
+          {
+            "name": "settled",
+            "type": "bool"
+          },
+          {
+            "name": "winner_team",
+            "type": "u8"
+          },
+          {
+            "name": "random_reward_amount",
+            "type": "u64"
+          },
+          {
+            "name": "random_reward_filled",
+            "type": "bool"
+          },
+          {
+            "name": "random_winner",
+            "type": "pubkey"
+          },
+          {
+            "name": "claimed_random",
+            "type": "bool"
+          },
+          {
+            "name": "highest_bidder_reward_amount",
+            "type": "u64"
+          },
+          {
+            "name": "claimed_highest",
+            "type": "bool"
+          },
+          {
+            "name": "proportional_reward_amount",
+            "type": "u64"
+          },
+          {
+            "name": "proportional_reward_filled",
+            "type": "bool"
+          },
+          {
+            "name": "proportional_winning_total",
+            "type": "u128"
+          },
+          {
+            "name": "proportional_excluded_amount",
+            "type": "u128"
+          },
+          {
+            "name": "operator",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
+}

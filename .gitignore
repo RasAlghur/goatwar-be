@@ -1,6 +1,5 @@
 .env
 cranker-state.json
-*.json
 print-key.ts
 old-index.ts
 
